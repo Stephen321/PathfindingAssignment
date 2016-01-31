@@ -2,7 +2,7 @@
 #define GRAPHARC_H
 
 #include "GraphNode.h"
-
+#include <iostream>
 // -------------------------------------------------------
 // Name:        GraphArc
 // Description: This is the arc class. The arc class
@@ -24,19 +24,26 @@ private:
     ArcType m_weight;
 
 
-	sf::Vertex line[2];
+	sf::Vertex m_line[2];
+	
+	sf::Font font;
+	sf::Text m_text;
 
 
 
-public:    
+public:
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const{
-		target.draw(line, 2, sf::Lines);
+		target.draw(m_line, 2, sf::Lines);
 	}
 
 	void setLine(sf::Vector2f start, sf::Vector2f end){
-		line[0] = start;
-		line[1] = end;
+		m_line[0] = start;
+		m_line[1] = end;
+	}
+
+	void setColour(sf::Color colour, int index){
+		m_line[index].color = colour;
 	}
 
     // Accessor functions

@@ -2,6 +2,7 @@
 #define GRAPHNODE_H
 
 #include <list>
+#include "SFML\Graphics.hpp"
 
 // Forward references
 template <typename NodeType, typename ArcType> class GraphArc;
@@ -37,7 +38,11 @@ private:
 
 	sf::CircleShape m_shape;
 
+	sf::Text m_nameTxt;
+	sf::Text m_gCostTxt;
+	sf::Text m_hCostTxt;
 
+	const int RADIUS = 25;
 
 public:
     // Accessor functions
@@ -54,7 +59,15 @@ public:
     }
     // Manipulator functions
     void setData(NodeType data) {
-        m_data = data;
+		m_data = data;
+		m_nameTxt.setString(get<0>(m_data));
+		m_hCostTxt.setString("H(n)= " + to_string(get<1>(m_data)));
+		m_gCostTxt.setString("G(n)= " + to_string(get<2>(m_data)));
+		if (get<1>(m_data) == -1)
+			m_hCostTxt.setString("H(n)= ?");
+		if (get<2>(m_data) == -1)
+			m_gCostTxt.setString("G(n)= ?");
+		
     }
 
 	void setMarked(bool mark) {
@@ -70,6 +83,9 @@ public:
 	}
 
 	void setPosition(sf::Vector2f newPosition){
+		m_nameTxt.setPosition(newPosition);
+		m_hCostTxt.setPosition(newPosition.x - RADIUS, newPosition.y - RADIUS);
+		m_gCostTxt.setPosition(newPosition.x - RADIUS, newPosition.y - (RADIUS / 2));
 		m_shape.setPosition(newPosition);
 	}
 
@@ -89,8 +105,24 @@ public:
     void addArc( Node* pNode, ArcType pWeight );
 	void removeArc(Node* pNode);
 	void drawArcs(sf::RenderTarget& target) const;
-	GraphNode();
+	void drawText(sf::RenderTarget& target) const;
+	GraphNode(sf::Font& font);
 };
+
+
+template<typename NodeType, typename ArcType>
+GraphNode<NodeType, ArcType>::GraphNode(sf::Font& font){
+	m_prevNode = 0;
+	m_shape = sf::CircleShape(RADIUS);
+	m_shape.setOrigin(RADIUS, RADIUS);
+
+	m_nameTxt = sf::Text("", font, 15);
+	m_nameTxt.setOrigin(4, 8);
+	m_hCostTxt = sf::Text("H(n)= ?", font, 11);
+	m_hCostTxt.setOrigin(7, 7);
+	m_gCostTxt = sf::Text("G(n)= ?", font, 11);
+	m_gCostTxt.setOrigin(7, 7);
+}
 
 // ----------------------------------------------------------------
 //  Name:           getArc
@@ -100,15 +132,6 @@ public:
 //  Return Value:   A pointer to the arc, or 0 if an arc doesn't
 //                  exist from this to the specified input node.
 // ----------------------------------------------------------------
-
-
-template<typename NodeType, typename ArcType>
-GraphNode<NodeType, ArcType>::GraphNode(){
-	m_prevNode = 0;
-	float radius = 15;
-	m_shape = sf::CircleShape(radius);
-	m_shape.setOrigin(radius, radius);
-}
 
 template<typename NodeType, typename ArcType>
 GraphArc<NodeType, ArcType>* GraphNode<NodeType, ArcType>::getArc( Node* pNode ) {
@@ -127,7 +150,6 @@ GraphArc<NodeType, ArcType>* GraphNode<NodeType, ArcType>::getArc( Node* pNode )
      // returns null if not found
      return pArc;
 }
-
 
 // ----------------------------------------------------------------
 //  Name:           addArc
@@ -179,6 +201,14 @@ void GraphNode<NodeType, ArcType>::drawArcs(sf::RenderTarget& target) const{
 	for (auto a : m_arcList)
 		target.draw(a);
 }
+
+template<typename NodeType, typename ArcType>
+void GraphNode<NodeType, ArcType>::drawText(sf::RenderTarget& target) const{
+	target.draw(m_nameTxt);
+	target.draw(m_hCostTxt);
+	target.draw(m_gCostTxt);
+}
+
 #include "GraphArc.h"
 
 #endif

@@ -47,6 +47,15 @@ int main(int argc, char *argv[]) {
 	int width = 1200, height = 800;
 	sf::RenderWindow App(sf::VideoMode(width, height, 32), "SFML PathfindingAssement");
 
+	//arc weight text
+	typedef struct _WeightDisplay{
+		sf::Text text;
+		sf::RectangleShape rectangle;
+	}WeightDisplay;
+	vector<WeightDisplay> weightTexts;
+	sf::Font font;
+	font.loadFromFile("C:\\Windows\\Fonts\\GARA.TTF");
+
 	//set up graph
 	const int NODE_COUNT = 30;
 	Graph<tuple<string, int, int>, int> graph(NODE_COUNT);
@@ -60,7 +69,7 @@ int main(int argc, char *argv[]) {
 	sf::Vector2f graphPosition(100, 100);
 	sf::Vector2f offset;
 	while (myfile >> n >> offset.x >> offset.y) {
-		graph.addNode(tuple<string, int, int>(n, numeric_limits<int>::max() / 2, numeric_limits<int>::max() / 2), i++, graphPosition + offset);
+		graph.addNode(tuple<string, int, int>(n, -1, -1), i++, graphPosition + offset);
 	}
 	myfile.close();
 
@@ -80,6 +89,23 @@ int main(int argc, char *argv[]) {
 	int from, to, weight;
 	while ( myfile >> from >> to >> weight ){
 		graph.addArc(from, to, weight, directed);
+
+		//add weight text
+		WeightDisplay wgtDisplay;
+		wgtDisplay.text = sf::Text(to_string(weight), font, 15);
+		wgtDisplay.text.setPosition(graph.nodeArray()[from]->getPosition() + ((graph.nodeArray()[to]->getPosition() - graph.nodeArray()[from]->getPosition()) / 2.f));
+		wgtDisplay.text.setColor(sf::Color(255, 255, 128, 255));
+		wgtDisplay.text.setOrigin(8, 8);
+
+		//add weight back panel
+		wgtDisplay.rectangle = sf::RectangleShape(sf::Vector2f(22, 14));
+		wgtDisplay.rectangle.setOrigin(8, 5);
+		wgtDisplay.rectangle.setFillColor(sf::Color::Black);
+		wgtDisplay.rectangle.setOutlineColor(sf::Color(128, 128, 128, 255));
+		wgtDisplay.rectangle.setOutlineThickness(1.f);
+		wgtDisplay.rectangle.setPosition(wgtDisplay.text.getPosition());
+
+		weightTexts.push_back(wgtDisplay);
 	}
     myfile.close();
 
@@ -87,15 +113,8 @@ int main(int argc, char *argv[]) {
 	int startNode = 0;
 	int endNode = 20;
 
-	//reset graph
+	//path
 	vector<Node*> path;
-	graph.clearMarks();
-	graph.clearPrevious();
-	path.clear();
-	//							  1					    v
-	graph.aStar(graph.nodeArray()[0], graph.nodeArray()[20], visit, path);
-	graph.nodeArray()[startNode]->setColour(sf::Color::Green);
-	graph.nodeArray()[endNode]->setColour(sf::Color::Red);
 
 	//display nodes in path
 	for (Node* n : path)
@@ -113,6 +132,19 @@ int main(int argc, char *argv[]) {
 				App.close();
 			if ((Event.type == sf::Event::KeyPressed) && (Event.key.code == sf::Keyboard::Escape))
 				App.close();
+			if (Event.type == sf::Event::MouseButtonReleased){
+				graph.aStar(graph.nodeArray()[startNode], graph.nodeArray()[endNode], visit, path);
+				graph.nodeArray()[startNode]->setColour(sf::Color::Green);
+				graph.nodeArray()[endNode]->setColour(sf::Color::Red);
+			}
+			if (Event.type == sf::Event::MouseButtonPressed){
+				graph.clearMarks();
+				graph.clearPrevious();
+				path.clear();
+				graph.setHeuristics(graph.nodeArray()[endNode]);
+				graph.nodeArray()[startNode]->setColour(sf::Color::Green);
+				graph.nodeArray()[endNode]->setColour(sf::Color::Red);
+			}
 		}
 
 
@@ -120,6 +152,10 @@ int main(int argc, char *argv[]) {
 		App.clear();
 		graph.drawArcs(App);
 		graph.drawNodes(App);
+		for (WeightDisplay wD : weightTexts){
+			App.draw(wD.rectangle);
+			App.draw(wD.text);
+		}
 		App.display();
 	}
 

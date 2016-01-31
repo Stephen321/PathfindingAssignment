@@ -48,6 +48,8 @@ private:
 		}
 	};
 
+	sf::Font font;
+
 public:           
     // Constructor and destructor functions
     Graph( int size );
@@ -73,6 +75,7 @@ public:
 
 	//Pathfinding Assignment
 	void aStar(Node* pStart, Node* pDest, void(*pProcess)(Node*), std::vector<Node *>& path);
+	void setHeuristics(Node* pDest);
 	void drawNodes(sf::RenderTarget& target) const;
 	void drawArcs(sf::RenderTarget& target) const;
 
@@ -95,6 +98,8 @@ Graph<NodeType, ArcType>::Graph( int size ) : m_maxNodes( size ) {
 
    // set the node count to 0.
    m_count = 0;
+
+   font.loadFromFile("C:\\Windows\\Fonts\\GARA.TTF");
 }
 
 // ----------------------------------------------------------------
@@ -129,7 +134,7 @@ bool Graph<NodeType, ArcType>::addNode( NodeType data, int index, sf::Vector2f p
    if ( m_pNodes[index] == 0) {
       nodeNotPresent = true;
       // create a new node, put the data in it, and unmark it.
-      m_pNodes[index] = new Node;
+      m_pNodes[index] = new Node(font);
       m_pNodes[index]->setData(data);
       m_pNodes[index]->setMarked(false);
 	  m_pNodes[index]->setPosition(position);
@@ -439,7 +444,7 @@ void Graph<NodeType, ArcType>::aStar(Node* pStart, Node* pDest, void(*pProcess)(
 		priority_queue<Node*, vector<Node*>, NodeSearchCostComparer> pq;
 		pq.push(pStart);
 		pStart->setMarked(true);
-		pStart->setData(NodeType(get<0>(pStart->data()), 0, 0));
+		pStart->setData(NodeType(get<0>(pStart->data()), get<1>(pStart->data()), 0));
 
 		while (pq.size() != 0 && pq.top() != pDest) {
 			list<Arc>::const_iterator iter = pq.top()->arcList().begin();
@@ -450,12 +455,12 @@ void Graph<NodeType, ArcType>::aStar(Node* pStart, Node* pDest, void(*pProcess)(
 				if (child != pq.top()->getPrevious()){
 					Arc arc = (*iter);
 					NodeType data = child->data();
-
+					//Sleep(1000);
+					int Hc = get<1>(data);
 					int Gc = get<2>(pq.top()->data()) + arc.weight();
-					int Hc = (int)(Gc * 0.9f);
 					int Fc = Hc + Gc;
-					int currentFc = get<1>(data) + get<2>(data);
-					if (Fc < currentFc){
+					int currentFc = get<1>(data) +get<2>(data);
+					if (Fc < currentFc  || get<2>(data) == -1){  //is G(n) not set, H(n) will be set with setHeuristics()
 						child->setData(NodeType(get<0>(data), Hc, Gc));
 						child->setPrevious(pq.top());
 					}
@@ -463,6 +468,7 @@ void Graph<NodeType, ArcType>::aStar(Node* pStart, Node* pDest, void(*pProcess)(
 					if (child->marked() == false) {
 						pq.push(child);
 						child->setMarked(true);
+						child->setColour(sf::Color(0, 128, 128, 255));
 					}
 				}
 			}
@@ -470,9 +476,9 @@ void Graph<NodeType, ArcType>::aStar(Node* pStart, Node* pDest, void(*pProcess)(
 		}
 
 		if (pq.size() != 0 && pq.top() == pDest){
-			Node* previous = pDest;
-			for (; previous->getPrevious() != 0; previous = previous->getPrevious()){
+			for (Node* previous = pDest; previous->getPrevious() != 0; previous = previous->getPrevious()){
 				path.push_back(previous);
+				previous->setColour(sf::Color::Magenta);
 			}
 			path.push_back(pStart);
 			std::reverse(path.begin(), path.end());
@@ -484,11 +490,27 @@ void Graph<NodeType, ArcType>::aStar(Node* pStart, Node* pDest, void(*pProcess)(
 
 
 
+template<class NodeType, class ArcType>
+void Graph<NodeType, ArcType>::setHeuristics(Node* pDest){
+	if (pDest != 0) {
+		for (int i = 0; i < m_count; i++){
+			sf::Vector2f vectorTo = pDest->getPosition() - m_pNodes[i]->getPosition();
+			int Hc = (int)(sqrt((vectorTo.x * vectorTo.x) + (vectorTo.y * vectorTo.y)));
+			NodeType data = m_pNodes[i]->data();
+			m_pNodes[i]->setData(NodeType(get<0>(data), Hc, get<2>(data)));
+		}
+	}
+}
+
+
+
 //draw the nodes
 template<class NodeType, class ArcType>
 void Graph<NodeType, ArcType>::drawNodes(sf::RenderTarget& target) const{
-	for (int i = 0; i < m_count; i++)
+	for (int i = 0; i < m_count; i++){
 		target.draw(m_pNodes[i]->getShape());
+		m_pNodes[i]->drawText(target);
+	}
 }
 
 //draw arcs
