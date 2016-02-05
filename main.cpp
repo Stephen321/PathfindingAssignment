@@ -111,7 +111,9 @@ int main(int argc, char *argv[]) {
 
 
 	int startNode = 0;
-	int endNode = 20;
+	int endNode = 15;
+	//15,22,26 breaks
+	//s, x, g
 
 	//path
 	vector<Node*> path;
