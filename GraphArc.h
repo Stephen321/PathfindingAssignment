@@ -9,14 +9,15 @@
 //              points to a graph node, and contains a 
 //              weight.
 // -------------------------------------------------------
-template<class NodeType, class ArcType>
+
+template<class DataType, class NodeType, class ArcType>
 class GraphArc : public sf::Drawable {
 private:
 
 // -------------------------------------------------------
 // Description: pointer to the node that the arc points to
 // -------------------------------------------------------
-    GraphNode<NodeType, ArcType>* m_pNode;
+	GraphNode<DataType, NodeType, ArcType>* m_pNode;
 
 // -------------------------------------------------------
 // Description: Weight of the arc
@@ -47,7 +48,7 @@ public:
 	}
 
     // Accessor functions
-    GraphNode<NodeType, ArcType>* node() const {
+    GraphNode<DataType, NodeType, ArcType>* node() const {
         return m_pNode;
     }
                               
@@ -56,7 +57,7 @@ public:
     }
     
     // Manipulator functions
-    void setNode(GraphNode<NodeType, ArcType>* pNode) {
+    void setNode(GraphNode<DataType, NodeType, ArcType>* pNode) {
 		m_pNode = pNode;
     }
     

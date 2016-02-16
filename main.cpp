@@ -35,10 +35,10 @@ using namespace std;
 
 
 //typedef GraphArc<tuple<string, int, int>, int> Arc;
-typedef GraphNode<tuple<string, int, int>, int> Node;
+typedef GraphNode<string, int, int> Node;
 
 void visit(Node * pNode) {
-	cout << "Visiting: Data= " << get<0>(pNode->data()) << " H(n)= " << get<1>(pNode->data()) << " G(n)= " << get<2>(pNode->data()) << endl;
+	cout << "Visiting: Data= " << pNode->data() << " H(n)= " << pNode->hCost() << " G(n)= " << pNode->gCost() << endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 
 	//set up graph
 	const int NODE_COUNT = 30;
-	Graph<tuple<string, int, int>, int> graph(NODE_COUNT);
+	Graph<string, int, int> graph(NODE_COUNT);
 	
 	//set up nodes
 	string n;
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 	sf::Vector2f graphPosition(100, 100);
 	sf::Vector2f offset;
 	while (myfile >> n >> offset.x >> offset.y) {
-		graph.addNode(tuple<string, int, int>(n, -1, -1), i++, graphPosition + offset);
+		graph.addNode(n, i++, graphPosition + offset);
 	}
 	myfile.close();
 
@@ -111,8 +111,8 @@ int main(int argc, char *argv[]) {
 
 
 	int startNode = 0;
-	int endNode = 15;
-	//15,22,26 breaks
+	int endNode = 17;
+	//15,22,26 breaks when starting at 0
 	//s, x, g
 
 	//path
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 			if ((Event.type == sf::Event::KeyPressed) && (Event.key.code == sf::Keyboard::Escape))
 				App.close();
 			if (Event.type == sf::Event::MouseButtonReleased){
-				graph.aStar(graph.nodeArray()[startNode], graph.nodeArray()[endNode], visit, path);
+				graph.aStar(graph.nodeArray()[startNode], graph.nodeArray()[endNode], path);
 				graph.nodeArray()[startNode]->setColour(sf::Color::Green);
 				graph.nodeArray()[endNode]->setColour(sf::Color::Red);
 			}

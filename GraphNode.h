@@ -5,7 +5,7 @@
 #include "SFML\Graphics.hpp"
 
 // Forward references
-template <typename NodeType, typename ArcType> class GraphArc;
+template <typename DataType, typename NodeType, typename ArcType> class GraphArc;
 
 // -------------------------------------------------------
 // Name:        GraphNode
@@ -13,17 +13,21 @@ template <typename NodeType, typename ArcType> class GraphArc;
 //              contains data, and has a linked list of 
 //              arcs.
 // -------------------------------------------------------
-template<class NodeType, class ArcType>
+template<class DataType, class NodeType, class ArcType>
 class GraphNode {
 private:    
 // typedef the classes to make our lives easier.
-    typedef GraphArc<NodeType, ArcType> Arc;
-    typedef GraphNode<NodeType, ArcType> Node;
+	typedef GraphArc<DataType, NodeType, ArcType> Arc;
+	typedef GraphNode<DataType, NodeType, ArcType> Node;
 // -------------------------------------------------------
 // Description: data inside the node
 // -------------------------------------------------------
-    NodeType m_data;
-
+	DataType m_data;
+// -------------------------------------------------------
+// Description: cost inside node
+// -------------------------------------------------------
+	NodeType m_hCost;
+	NodeType m_gCost;
 // -------------------------------------------------------
 // Description: list of arcs that the node has.
 // -------------------------------------------------------
@@ -54,21 +58,42 @@ public:
         return m_marked;
     }
 
-    NodeType const & data() const {
+    DataType const & data() const {
         return m_data;
     }
     // Manipulator functions
-    void setData(NodeType data) {
+	void setData(DataType data) {
 		m_data = data;
-		m_nameTxt.setString(get<0>(m_data));
-		m_hCostTxt.setString("H(n)= " + to_string(get<1>(m_data)));
-		m_gCostTxt.setString("G(n)= " + to_string(get<2>(m_data)));
-		if (get<1>(m_data) == -1)
-			m_hCostTxt.setString("H(n)= ?");
-		if (get<2>(m_data) == -1)
-			m_gCostTxt.setString("G(n)= ?");
-		
+		m_nameTxt.setString(m_data);
     }
+
+	void setHCost(NodeType hCost) {
+		m_hCost = hCost;
+		if (m_hCost == -1)
+			m_hCostTxt.setString("H(n)= ?");
+		else
+			m_hCostTxt.setString("H(n)= " + to_string(m_hCost));
+	}
+
+	void setGCost(NodeType gCost) {
+		m_gCost = gCost;
+		if (m_gCost == -1)
+			m_gCostTxt.setString("G(n)= ?");
+		else
+			m_gCostTxt.setString("G(n)= " + to_string(m_gCost));
+	}
+
+	NodeType const & hCost() const {
+		return m_hCost;
+	}
+
+	NodeType const & gCost() const {
+		return m_gCost;
+	}
+
+	NodeType const & fCost() const {
+		return m_hCost + m_gCost;
+	}
 
 	void setMarked(bool mark) {
 		m_marked = mark;
@@ -110,9 +135,11 @@ public:
 };
 
 
-template<typename NodeType, typename ArcType>
-GraphNode<NodeType, ArcType>::GraphNode(sf::Font& font){
-	m_prevNode = 0;
+template<typename DataType, typename NodeType, typename ArcType>
+GraphNode<DataType, NodeType, ArcType>::GraphNode(sf::Font& font) :
+m_prevNode(0),
+m_hCost(-1),
+m_gCost(-1){
 	m_shape = sf::CircleShape(RADIUS);
 	m_shape.setOrigin(RADIUS, RADIUS);
 
@@ -133,8 +160,8 @@ GraphNode<NodeType, ArcType>::GraphNode(sf::Font& font){
 //                  exist from this to the specified input node.
 // ----------------------------------------------------------------
 
-template<typename NodeType, typename ArcType>
-GraphArc<NodeType, ArcType>* GraphNode<NodeType, ArcType>::getArc( Node* pNode ) {
+template<typename DataType, typename NodeType, typename ArcType>
+GraphArc<DataType, NodeType, ArcType>* GraphNode<DataType, NodeType, ArcType>::getArc(Node* pNode) {
 
      list<Arc>::iterator iter = m_arcList.begin();
      list<Arc>::iterator endIter = m_arcList.end();
@@ -160,8 +187,8 @@ GraphArc<NodeType, ArcType>* GraphNode<NodeType, ArcType>::getArc( Node* pNode )
 //                  Second argument is the weight of the arc.
 //  Return Value:   None.
 // ----------------------------------------------------------------
-template<typename NodeType, typename ArcType>
-void GraphNode<NodeType, ArcType>::addArc( Node* pNode, ArcType weight ) {
+template<typename DataType, typename NodeType, typename ArcType>
+void GraphNode<DataType, NodeType, ArcType>::addArc(Node* pNode, ArcType weight) {
    // Create a new arc.
    Arc a;
    a.setNode(pNode);
@@ -179,8 +206,8 @@ void GraphNode<NodeType, ArcType>::addArc( Node* pNode, ArcType weight ) {
 //  Arguments:      None.
 //  Return Value:   None.
 // ----------------------------------------------------------------
-template<typename NodeType, typename ArcType>
-void GraphNode<NodeType, ArcType>::removeArc( Node* pNode ) {
+template<typename DataType, typename NodeType, typename ArcType>
+void GraphNode<DataType, NodeType, ArcType>::removeArc(Node* pNode) {
      list<Arc>::iterator iter = m_arcList.begin();
      list<Arc>::iterator endIter = m_arcList.end();
 
@@ -195,15 +222,15 @@ void GraphNode<NodeType, ArcType>::removeArc( Node* pNode ) {
 }
 
 
-template<typename NodeType, typename ArcType>
-void GraphNode<NodeType, ArcType>::drawArcs(sf::RenderTarget& target) const{
+template<typename DataType, typename NodeType, typename ArcType>
+void GraphNode<DataType, NodeType, ArcType>::drawArcs(sf::RenderTarget& target) const{
 	int arcs = m_arcList.size();
 	for (auto a : m_arcList)
 		target.draw(a);
 }
 
-template<typename NodeType, typename ArcType>
-void GraphNode<NodeType, ArcType>::drawText(sf::RenderTarget& target) const{
+template<typename DataType, typename NodeType, typename ArcType>
+void GraphNode<DataType, NodeType, ArcType>::drawText(sf::RenderTarget& target) const{
 	target.draw(m_nameTxt);
 	target.draw(m_hCostTxt);
 	target.draw(m_gCostTxt);
