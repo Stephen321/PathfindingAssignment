@@ -139,14 +139,11 @@ int main(int argc, char *argv[]) {
 	//display nodes in path
 	for (Node* n : path)
 		visit(n);
-	sf::CircleShape testShape(10);
-	testShape.setRadius(10);
 	const float RADIUS = graph.nodeArray()[0]->getShape().getRadius();
 	// Start game loop 
 	while (App.isOpen())
 	{
 		sf::Vector2f mousePos = (sf::Vector2f)sf::Mouse::getPosition(App);
-		testShape.setPosition(mousePos);
 
 		// Process events 
 		sf::Event Event;
@@ -223,7 +220,6 @@ int main(int argc, char *argv[]) {
 			App.draw(wD.rectangle);
 			App.draw(wD.text);
 		}
-		App.draw(testShape);
 		App.display();
 	}
 
