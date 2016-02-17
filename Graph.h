@@ -68,6 +68,7 @@ public:
 	Arc* getArc(int from, int to);
 	void clearMarks();
 	void clearPrevious();
+	int getMaxNodes();
 
 	//Pathfinding Assignment
 	void aStar(Node* pStart, Node* pDest, std::vector<Node *>& path);
@@ -256,6 +257,19 @@ GraphArc<DataType, NodeType, ArcType>* Graph<DataType, NodeType, ArcType>::getAr
      return pArc;
 }
 
+// ----------------------------------------------------------------
+//  Name:           getMaxNodes
+//  Description:    Gets the number of elements in the list of nodes.
+//  Arguments:      None
+//  Return Value:   m_maxNodes
+// ----------------------------------------------------------------
+template<class DataType, class NodeType, class ArcType>
+int Graph<DataType, NodeType, ArcType>::getMaxNodes() {
+
+	return m_maxNodes;
+}
+
+
 
 // ----------------------------------------------------------------
 //  Name:           clearMarks
@@ -268,7 +282,7 @@ void Graph<DataType, NodeType, ArcType>::clearMarks() {
 	int index;
 	for (index = 0; index < m_maxNodes; index++) {
 		if (m_pNodes[index] != 0) {
-			m_pNodes[index]->setMarked(false);
+			m_pNodes[index]->setMarked(false);		
 		}
 	}
 }

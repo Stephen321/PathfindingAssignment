@@ -59,8 +59,12 @@ int main(int argc, char *argv[]) {
 	resetButton.setTexture(resetTex);
 	resetButton.setPosition(610, 600);
 
-	sf::Vector2i mousePos;
-	
+	int originNode;
+	int destNode;
+	bool setOrigin = true;
+	bool setDest = true;
+
+	sf::Vector2i mousePos;	
 
 	//arc weight text
 	typedef struct _WeightDisplay{
@@ -141,58 +145,75 @@ int main(int argc, char *argv[]) {
 	// Start game loop 
 	while (App.isOpen())
 	{
-		mousePos = sf::Mouse::getPosition(App);
+		mousePos = sf::Mouse::getPosition(App);		
 
 		// Process events 
 		sf::Event Event;
 		while (App.pollEvent(Event))
 		{
-			if (Event.type == sf::Event::Closed)
-				App.close();
-			if ((Event.type == sf::Event::KeyPressed) && (Event.key.code == sf::Keyboard::Escape))
-				App.close();
-			if (Event.type == sf::Event::MouseButtonReleased && 
-				mousePos.x > startButton.getPosition().x && 
-				mousePos.x < startButton.getPosition().x + startButton.getTextureRect().width &&
-				mousePos.y > startButton.getPosition().y &&
-				mousePos.y < startButton.getPosition().y + startButton.getTextureRect().height){
-
-				graph.clearMarks();
-				graph.clearPrevious();
-				path.clear();
-				graph.setHeuristics(graph.nodeArray()[endNode]);
-				graph.nodeArray()[startNode]->setColour(sf::Color::Green);
-				graph.nodeArray()[endNode]->setColour(sf::Color::Red);
-
-				Sleep(1000);
-
-				/*graph.aStar(graph.nodeArray()[startNode], graph.nodeArray()[endNode], path);
-				graph.nodeArray()[startNode]->setColour(sf::Color::Green);
-				graph.nodeArray()[endNode]->setColour(sf::Color::Red);*/
+			if (setOrigin || setDest)
+			{
+				for (int i = 0; i < graph.getMaxNodes(); i++)
+				{
+					if (((mousePos.x - (graph.nodeArray()[i]->getShape().getPosition().x - graph.nodeArray()[i]->getShape().getRadius())) * 2
+						+ (mousePos.y - (graph.nodeArray()[i]->getShape().getPosition().y - graph.nodeArray()[i]->getShape().getRadius())) * 2) <
+						graph.nodeArray()[i]->getShape().getRadius() * 2 &&
+						Event.type == sf::Event::MouseButtonReleased)
+					{
+						if (setOrigin)
+						{
+							originNode = i;
+							graph.nodeArray()[originNode]->setColour(sf::Color(180, 0, 0));
+							setOrigin = false;	
+							break;
+						}
+						else if (setDest)
+						{
+							destNode = i;
+							graph.nodeArray()[destNode]->setColour(sf::Color(0,150,0));
+							graph.setHeuristics(graph.nodeArray()[destNode]);
+							setDest = false;
+							break;
+						}
+					}
+				}
 			}
-			/*else if (Event.type == sf::Event::MouseButtonReleased &&
-					mousePos.x > resetButton.getPosition().x &&
-					mousePos.x < resetButton.getPosition().x + resetButton.getTextureRect().width &&
-					mousePos.y > resetButton.getPosition().y &&
-					mousePos.y < resetButton.getPosition().y + resetButton.getTextureRect().height){
+			else
+			{
+				if (Event.type == sf::Event::Closed)
+					App.close();
+				if ((Event.type == sf::Event::KeyPressed) && (Event.key.code == sf::Keyboard::Escape))
+					App.close();
+				if (Event.type == sf::Event::MouseButtonReleased &&
+					mousePos.x > startButton.getPosition().x &&
+					mousePos.x < startButton.getPosition().x + startButton.getTextureRect().width &&
+					mousePos.y > startButton.getPosition().y &&
+					mousePos.y < startButton.getPosition().y + startButton.getTextureRect().height){					
 
+					graph.aStar(graph.nodeArray()[originNode], graph.nodeArray()[destNode], path);
+					graph.nodeArray()[originNode]->setColour(sf::Color(0, 150, 0));
+					graph.nodeArray()[destNode]->setColour(sf::Color(180, 0, 0));
+				}
+				else if (Event.type == sf::Event::MouseButtonReleased &&
+						mousePos.x > resetButton.getPosition().x &&
+						mousePos.x < resetButton.getPosition().x + resetButton.getTextureRect().width &&
+						mousePos.y > resetButton.getPosition().y &&
+						mousePos.y < resetButton.getPosition().y + resetButton.getTextureRect().height){
 
+					graph.clearMarks();
+					graph.clearPrevious();
+					path.clear();
 
+					for (int i = 0; i < graph.getMaxNodes(); i++)
+						graph.nodeArray()[i]->setColour(sf::Color::Blue);
 
-			}*/
-
-			if (Event.type == sf::Event::MouseButtonPressed){
-				/*graph.clearMarks();
-				graph.clearPrevious();
-				path.clear();
-				graph.setHeuristics(graph.nodeArray()[endNode]);
-				graph.nodeArray()[startNode]->setColour(sf::Color::Green);
-				graph.nodeArray()[endNode]->setColour(sf::Color::Red);*/
-			}
-			
+					originNode = NULL;
+					destNode = NULL;
+					setOrigin = true;
+					setDest = true;
+				}				
+			}			
 		}
-
-
 
 		App.clear();
 		App.draw(startButton);
