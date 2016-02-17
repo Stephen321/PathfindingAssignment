@@ -66,8 +66,7 @@ public:
     bool addArc( int from, int to, ArcType weight, bool directed = true );
     void removeArc( int from, int to );
 	Arc* getArc(int from, int to);
-	void clearMarks();
-	void clearPrevious();
+	void reset();
 	int getMaxNodes();
 
 	//Pathfinding Assignment
@@ -278,24 +277,14 @@ int Graph<DataType, NodeType, ArcType>::getMaxNodes() {
 //  Return Value:   None.
 // ----------------------------------------------------------------
 template<class DataType, class NodeType, class ArcType>
-void Graph<DataType, NodeType, ArcType>::clearMarks() {
+void Graph<DataType, NodeType, ArcType>::reset() {
 	int index;
 	for (index = 0; index < m_maxNodes; index++) {
 		if (m_pNodes[index] != 0) {
-			m_pNodes[index]->setMarked(false);		
+			m_pNodes[index]->reset();
 		}
 	}
 }
-template<class DataType, class NodeType, class ArcType>
-void Graph<DataType, NodeType, ArcType>::clearPrevious() {
-	int index;
-	for (index = 0; index < m_maxNodes; index++) {
-		if (m_pNodes[index] != 0) {
-			m_pNodes[index]->setPrevious(0);
-		}
-	}
-}
-
 
 template<class DataType, class NodeType, class ArcType>
 void Graph<DataType, NodeType, ArcType>::aStar(Node* pStart, Node* pDest, std::vector<Node *>& path){

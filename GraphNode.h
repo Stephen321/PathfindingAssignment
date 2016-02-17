@@ -69,18 +69,12 @@ public:
 
 	void setHCost(NodeType hCost) {
 		m_hCost = hCost;
-		if (m_hCost == -1)
-			m_hCostTxt.setString("H(n)= ?");
-		else
-			m_hCostTxt.setString("H(n)= " + to_string(m_hCost));
+		m_hCostTxt.setString("H(n)= " + to_string(m_hCost));
 	}
 
 	void setGCost(NodeType gCost) {
 		m_gCost = gCost;
-		if (m_gCost == -1)
-			m_gCostTxt.setString("G(n)= ?");
-		else
-			m_gCostTxt.setString("G(n)= " + to_string(m_gCost));
+		m_gCostTxt.setString("G(n)= " + to_string(m_gCost));
 	}
 
 	NodeType const & hCost() const {
@@ -121,6 +115,8 @@ public:
 	sf::CircleShape const & getShape() const{
 		return m_shape;
 	}
+
+	void reset();
 
 	Node* getPrevious() {
 		return m_prevNode;
@@ -178,6 +174,17 @@ GraphArc<DataType, NodeType, ArcType>* GraphNode<DataType, NodeType, ArcType>::g
      return pArc;
 }
 
+template<typename DataType, typename NodeType, typename ArcType>
+void  GraphNode<DataType, NodeType, ArcType>::reset() {
+	m_marked = false;
+	m_prevNode = 0;
+	m_shape.setFillColor(sf::Color::Blue);
+	m_hCost = -1;
+	m_gCost = -1;
+
+	m_hCostTxt.setString("H(n)= ?");
+	m_gCostTxt.setString("G(n)= ?");
+}
 // ----------------------------------------------------------------
 //  Name:           addArc
 //  Description:    This adds an arc from the current node pointing

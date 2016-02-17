@@ -64,7 +64,6 @@ int main(int argc, char *argv[]) {
 	bool setOrigin = true;
 	bool setDest = true;
 
-	sf::Vector2i mousePos;	
 
 	//arc weight text
 	typedef struct _WeightDisplay{
@@ -140,12 +139,14 @@ int main(int argc, char *argv[]) {
 	//display nodes in path
 	for (Node* n : path)
 		visit(n);
-
-
+	sf::CircleShape testShape(10);
+	testShape.setRadius(10);
+	const float RADIUS = graph.nodeArray()[0]->getShape().getRadius();
 	// Start game loop 
 	while (App.isOpen())
 	{
-		mousePos = sf::Mouse::getPosition(App);		
+		sf::Vector2f mousePos = (sf::Vector2f)sf::Mouse::getPosition(App);
+		testShape.setPosition(mousePos);
 
 		// Process events 
 		sf::Event Event;
@@ -153,27 +154,29 @@ int main(int argc, char *argv[]) {
 		{
 			if (setOrigin || setDest)
 			{
-				for (int i = 0; i < graph.getMaxNodes(); i++)
+				if (Event.type == sf::Event::MouseButtonPressed)
 				{
-					if (((mousePos.x - (graph.nodeArray()[i]->getShape().getPosition().x - graph.nodeArray()[i]->getShape().getRadius())) * 2
-						+ (mousePos.y - (graph.nodeArray()[i]->getShape().getPosition().y - graph.nodeArray()[i]->getShape().getRadius())) * 2) <
-						graph.nodeArray()[i]->getShape().getRadius() * 2 &&
-						Event.type == sf::Event::MouseButtonReleased)
+					for (int i = 0; i < graph.getMaxNodes(); i++)
 					{
-						if (setOrigin)
+						sf::Vector2f vectorBetween = graph.nodeArray()[i]->getShape().getPosition() - mousePos;
+						float distanceSquared = (vectorBetween.x * vectorBetween.x) + (vectorBetween.y * vectorBetween.y);
+						if (distanceSquared < (RADIUS * RADIUS))
 						{
-							originNode = i;
-							graph.nodeArray()[originNode]->setColour(sf::Color(180, 0, 0));
-							setOrigin = false;	
-							break;
-						}
-						else if (setDest)
-						{
-							destNode = i;
-							graph.nodeArray()[destNode]->setColour(sf::Color(0,150,0));
-							graph.setHeuristics(graph.nodeArray()[destNode]);
-							setDest = false;
-							break;
+							if (setOrigin)
+							{
+								originNode = i;
+								graph.nodeArray()[originNode]->setColour(sf::Color(0, 180, 0));
+								setOrigin = false;
+								break;
+							}
+							else if (setDest && setOrigin == false && i != originNode)
+							{
+								destNode = i;
+								graph.nodeArray()[destNode]->setColour(sf::Color(150, 0, 0));
+								graph.setHeuristics(graph.nodeArray()[destNode]);
+								setDest = false;
+								break;
+							}
 						}
 					}
 				}
@@ -200,12 +203,8 @@ int main(int argc, char *argv[]) {
 						mousePos.y > resetButton.getPosition().y &&
 						mousePos.y < resetButton.getPosition().y + resetButton.getTextureRect().height){
 
-					graph.clearMarks();
-					graph.clearPrevious();
+					graph.reset();
 					path.clear();
-
-					for (int i = 0; i < graph.getMaxNodes(); i++)
-						graph.nodeArray()[i]->setColour(sf::Color::Blue);
 
 					originNode = NULL;
 					destNode = NULL;
@@ -224,6 +223,7 @@ int main(int argc, char *argv[]) {
 			App.draw(wD.rectangle);
 			App.draw(wD.text);
 		}
+		App.draw(testShape);
 		App.display();
 	}
 
