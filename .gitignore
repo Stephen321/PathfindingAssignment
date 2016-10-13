@@ -234,3 +234,15 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+# files being edited
+*~
+# make and build files
+*.o
+*.h.gch
+Debug
+ipch
+Release
+documentation
+*.VC.db
+*.VC.VC*.opendb

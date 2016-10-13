@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
 		WeightDisplay wgtDisplay;
 		wgtDisplay.text = sf::Text(to_string(weight), font, 15);
 		wgtDisplay.text.setPosition(graph.nodeArray()[from]->getPosition() + ((graph.nodeArray()[to]->getPosition() - graph.nodeArray()[from]->getPosition()) / 2.f));
-		wgtDisplay.text.setColor(sf::Color(255, 255, 128, 255));
+		wgtDisplay.text.setFillColor(sf::Color(255, 255, 128, 255));
 		wgtDisplay.text.setOrigin(8, 8);
 
 		//add weight back panel
