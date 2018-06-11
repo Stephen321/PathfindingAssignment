@@ -1,10 +1,3 @@
-//----------------------------------------------------------------------------------------------
-//I declare that the work I am submitting for assessing by the Institute examiner(s) is entirely my own
-//work, save for any portion(s) thereof where the author or source has been duly referenced and
-//attributed.
-//Signed: Stephen Ennis C00181305
-//----------------------------------------------------------------------------------------------
-
 #ifdef _DEBUG 
 #pragma comment(lib,"sfml-graphics-d.lib") 
 #pragma comment(lib,"sfml-audio-d.lib") 
@@ -44,20 +37,21 @@ void visit(Node * pNode) {
 int main(int argc, char *argv[]) {
 
 	//create window 
-	int width = 1200, height = 800;
-	sf::RenderWindow App(sf::VideoMode(width, height, 32), "SFML PathfindingAssement");
+	int width = 700, height = 700;
+	sf::RenderWindow window(sf::VideoMode(width, height, 32), "SFML PathfindingAssement");
 
 	sf::Texture startTex;
-	startTex.loadFromFile("startButton.png");
+	startTex.loadFromFile("assets/startButton.png");
 	sf::Sprite startButton;
 	startButton.setTexture(startTex);
-	startButton.setPosition(310, 600);
+	startButton.setPosition(60, 530.
+	);
 
 	sf::Texture resetTex;
-	resetTex.loadFromFile("resetButton.png");
+	resetTex.loadFromFile("assets/resetButton.png");
 	sf::Sprite resetButton;
 	resetButton.setTexture(resetTex);
-	resetButton.setPosition(610, 600);
+	resetButton.setPosition(360, 530);
 
 	int originNode;
 	int destNode;
@@ -72,7 +66,7 @@ int main(int argc, char *argv[]) {
 	}WeightDisplay;
 	vector<WeightDisplay> weightTexts;
 	sf::Font font;
-	font.loadFromFile("C:\\Windows\\Fonts\\GARA.TTF");
+	font.loadFromFile("assets/GARA.ttf");
 
 	//set up graph
 	const int NODE_COUNT = 30;
@@ -82,9 +76,9 @@ int main(int argc, char *argv[]) {
 	string n;
 	int i = 0;
 	ifstream myfile;
-	myfile.open ("nodes.txt");
+	myfile.open ("assets/nodes.txt");
 
-	sf::Vector2f graphPosition(350, 125);
+	sf::Vector2f graphPosition(100, 75);
 	sf::Vector2f offset;
 	while (myfile >> n >> offset.x >> offset.y) {
 		graph.addNode(n, i++, graphPosition + offset);
@@ -93,7 +87,7 @@ int main(int argc, char *argv[]) {
 
 
 	//set up arcs
-	myfile.open("arcs.txt");
+	myfile.open("assets/arcs.txt");
 	//if first line of text file says undirected then make the graph undirected
 	string dirText;
 	myfile >> dirText;
@@ -141,14 +135,17 @@ int main(int argc, char *argv[]) {
 		visit(n);
 	const float RADIUS = graph.nodeArray()[0]->getShape().getRadius();
 	// Start game loop 
-	while (App.isOpen())
+	while (window.isOpen())
 	{
-		sf::Vector2f mousePos = (sf::Vector2f)sf::Mouse::getPosition(App);
+		sf::Vector2f mousePos = (sf::Vector2f)sf::Mouse::getPosition(window);
 
 		// Process events 
 		sf::Event Event;
-		while (App.pollEvent(Event))
+		while (window.pollEvent(Event))
 		{
+			if (Event.type == sf::Event::Closed || (Event.type == sf::Event::KeyPressed && Event.key.code == sf::Keyboard::Escape)) {
+				return EXIT_SUCCESS;
+			}
 			if (setOrigin || setDest)
 			{
 				if (Event.type == sf::Event::MouseButtonPressed)
@@ -181,9 +178,9 @@ int main(int argc, char *argv[]) {
 			else
 			{
 				if (Event.type == sf::Event::Closed)
-					App.close();
+					window.close();
 				if ((Event.type == sf::Event::KeyPressed) && (Event.key.code == sf::Keyboard::Escape))
-					App.close();
+					window.close();
 				if (Event.type == sf::Event::MouseButtonReleased &&
 					mousePos.x > startButton.getPosition().x &&
 					mousePos.x < startButton.getPosition().x + startButton.getTextureRect().width &&
@@ -211,16 +208,16 @@ int main(int argc, char *argv[]) {
 			}			
 		}
 
-		App.clear();
-		App.draw(startButton);
-		App.draw(resetButton);
-		graph.drawArcs(App);
-		graph.drawNodes(App);
+		window.clear();
+		window.draw(startButton);
+		window.draw(resetButton);
+		graph.drawArcs(window);
+		graph.drawNodes(window);
 		for (WeightDisplay wD : weightTexts){
-			App.draw(wD.rectangle);
-			App.draw(wD.text);
+			window.draw(wD.rectangle);
+			window.draw(wD.text);
 		}
-		App.display();
+		window.display();
 	}
 
 	return EXIT_SUCCESS;

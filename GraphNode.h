@@ -45,6 +45,7 @@ private:
 	sf::Text m_nameTxt;
 	sf::Text m_gCostTxt;
 	sf::Text m_hCostTxt;
+	sf::Text m_fCostTxt;
 
 	const int RADIUS = 25;
 
@@ -75,6 +76,7 @@ public:
 	void setGCost(NodeType gCost) {
 		m_gCost = gCost;
 		m_gCostTxt.setString("G(n)= " + to_string(m_gCost));
+		m_fCostTxt.setString("F(n)= " + to_string(m_hCost + m_gCost));
 	}
 
 	NodeType const & hCost() const {
@@ -102,9 +104,10 @@ public:
 	}
 
 	void setPosition(sf::Vector2f newPosition){
-		m_nameTxt.setPosition(newPosition);
-		m_hCostTxt.setPosition(newPosition.x - RADIUS, newPosition.y - RADIUS);
-		m_gCostTxt.setPosition(newPosition.x - RADIUS, newPosition.y - (RADIUS / 2));
+		m_nameTxt.setPosition(newPosition.x, newPosition.y + (RADIUS / 2));
+		m_hCostTxt.setPosition(newPosition.x - RADIUS, newPosition.y - (RADIUS * 0.75f));
+		m_gCostTxt.setPosition(newPosition.x - RADIUS, newPosition.y - (RADIUS * 0.35f));
+		m_fCostTxt.setPosition(newPosition.x - RADIUS, newPosition.y);
 		m_shape.setPosition(newPosition);
 	}
 
@@ -145,6 +148,8 @@ m_gCost(-1){
 	m_hCostTxt.setOrigin(7, 7);
 	m_gCostTxt = sf::Text("G(n)= ?", font, 11);
 	m_gCostTxt.setOrigin(7, 7);
+	m_fCostTxt = sf::Text("F(n) = ?", font, 11);
+	m_fCostTxt.setOrigin(7, 7);
 }
 
 // ----------------------------------------------------------------
@@ -184,6 +189,7 @@ void  GraphNode<DataType, NodeType, ArcType>::reset() {
 
 	m_hCostTxt.setString("H(n)= ?");
 	m_gCostTxt.setString("G(n)= ?");
+	m_fCostTxt.setString("F(n)= ?");
 }
 // ----------------------------------------------------------------
 //  Name:           addArc
@@ -241,6 +247,7 @@ void GraphNode<DataType, NodeType, ArcType>::drawText(sf::RenderTarget& target) 
 	target.draw(m_nameTxt);
 	target.draw(m_hCostTxt);
 	target.draw(m_gCostTxt);
+	target.draw(m_fCostTxt);
 }
 
 #include "GraphArc.h"

@@ -95,7 +95,7 @@ Graph<DataType, NodeType, ArcType>::Graph(int size) : m_maxNodes(size) {
    // set the node count to 0.
    m_count = 0;
 
-   font.loadFromFile("C:\\Windows\\Fonts\\GARA.TTF");
+   font.loadFromFile("assets/GARA.TTF");
 }
 
 // ----------------------------------------------------------------
